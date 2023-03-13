@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date: 10.03.2023 10:10:50
+-- Create Date: 13.03.2023 11:04:58
 -- Design Name: 
--- Module Name: main - Behavioral
+-- Module Name: debouncer_TB - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -31,13 +31,38 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity main is
+entity debouncer_TB is
 --  Port ( );
-end main;
+end debouncer_TB;
 
-architecture Behavioral of main is
 
+architecture Behavioral of debouncer_TB is
+signal DIN,CLK,DOUT : STD_LOGIC := '0';
+
+component DEBOUNCER 
+port(
+DIN,CLK :  IN STD_LOGIC;
+ DOUT    : OUT STD_LOGIC:= '0');
+end component;
+for D1: DEBOUNCER use entity work.DEBOUNCER(LOGIC);
 begin
 
+D1 : DEBOUNCER PORT MAP(DIN=>DIN,CLK=>CLK,DOUT=>DOUT);
 
+PROCESS
+BEGIN
+
+DIN <= '1' AFTER 5e6 ns;
+
+WAIT;
+END PROCESS;
+
+PROCESS
+BEGIN
+WHILE (NOW <= 20e6 NS ) LOOP
+CLK <= '1'; WAIT FOR 10NS;
+CLK <= '0'; WAIT FOR 10NS;
+END LOOP;
+WAIT;
+END PROCESS;
 end Behavioral;
