@@ -31,7 +31,8 @@ PORT(
 SWITCH   :  IN std_logic_vector(5 downto 0);
 TRY,CLK  :  IN STD_LOGIC;
 LEDs     : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-SEGS     : OUT SEVEN_SEGMENT(0 TO 3));
+SEGS     : OUT SEVEN_SEGMENT(0 TO 3);
+UNLCK    : OUT STD_LOGIC); -- FOR _TB, REMOVE LATER.
 
 end DOOR;
 
@@ -70,7 +71,7 @@ CASE (POSITION) IS --door state machine
 ------------------------------------------------
 WHEN LOCKED =>
 LED_SIGNAL <= (OTHERS => '0'); --LIGHTS OFF
-                         
+UNLCK  <= '0';      -- DOOR LOCKED              
 SEGS(0) <= S;   -- prints SHUT
 SEGS(1) <= h;  
 SEGS(2) <= u;  
@@ -88,8 +89,8 @@ END IF;
 
 ------------------------------------------------
 WHEN UNLOCKED =>
-
 LED_SIGNAL <= (OTHERS => '0'); -- lights off
+UNLCK  <= '1';     
 SEGS(0) <= O;   --print open
 SEGS(1) <= p; 
 SEGS(2) <= e; 
@@ -105,7 +106,7 @@ END IF;
 --END IF;
 ------------------------------------------------
 WHEN WARNING =>
-
+UNLCK  <= '0';     
 SEGS(0) <= S;  
 SEGS(1) <= h;  
 SEGS(2) <= u;  
