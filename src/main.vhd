@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 package display is
   type SEVEN_SEGMENT is array (natural range <>) of std_logic_vector(6 downto 0);
 end package;
-package body display is
+package body display is --create new type to store vectors
 end package body;
 --------------------------------------------- Output type declarations
 library IEEE;
@@ -15,7 +15,7 @@ use work.display.all;
 
 entity DOOR is
 GENERIC(
-S       : std_logic_vector(6 DOWNTO 0):= "1011010";
+S       : std_logic_vector(6 DOWNTO 0):= "1011010"; --constants
 H       : std_logic_vector(6 DOWNTO 0):= "0010111";
 U       : std_logic_vector(6 DOWNTO 0):= "0011100";
 T       : std_logic_vector(6 DOWNTO 0):= "0001111";
@@ -37,65 +37,72 @@ end DOOR;
 
 architecture Behavioral of DOOR is
 TYPE STATE IS (LOCKED, UNLOCKED,WARNING);
-SIGNAL SWITCH_DEB : STD_LOGIC_VECTOR(5 DOWNTO 0);
-SIGNAL TRY_DEB    : STD_LOGIC;
-SIGNAL POSITION   : STATE := LOCKED;
-SIGNAL LED_SIGNAL : STD_LOGIC_VECTOR(15 DOWNTO 0);
-
+SIGNAL SWITCH_DEB : STD_LOGIC_VECTOR(5 DOWNTO 0); --debounced switch
+SIGNAL TRY_DEB    : STD_LOGIC; --debounced button
+SIGNAL POSITION   : STATE := LOCKED; -- tracks state
+SIGNAL LED_SIGNAL : STD_LOGIC_VECTOR(15 DOWNTO 0); -- buffered led output
+SIGNAL TRY_EDGE   : STD_LOGIC_VECTOR(1 DOWNTO 0); -- button edge detection
 
 begin
 
 DEB_GEN: FOR I IN 5 DOWNTO 0 GENERATE
 
-DEB_ELEM : ENTITY WORK.DEBOUNCER 
+DEB_ELEM : ENTITY WORK.DEBOUNCER  -- attach debouncers to switches
 PORT MAP(DIN => SWITCH(I),DOUT => SWITCH_DEB(I),CLK=>CLK);
 END GENERATE;
 
+TRY_DEBOUNCE : ENTITY WORK.DEBOUNCER --attach debouncer to button
+PORT MAP(DIN => TRY, DOUT => TRY_DEB, CLK => CLK);
+
+LEDs <= LED_SIGNAL; --pass led buffer to leds
+
+
 PROCESS(CLK,TRY_DEB)
-VARIABLE COUNT : INTEGER RANGE 0 TO CLK_FREQ*10:= 0;
-VARIABLE BLINK : INTEGER RANGE 0 TO CLK_FREQ:= 0;
+VARIABLE COUNT : INTEGER RANGE 0 TO CLK_FREQ*10:= 0; --state counter
+VARIABLE BLINK : INTEGER RANGE 0 TO CLK_FREQ:= 0; --led blink counter
 
 BEGIN
 
-LEDs <= LED_SIGNAL;
+IF RISING_EDGE(CLK) THEN --global clock
+TRY_EDGE <= TRY_EDGE(0) & TRY_DEB; -- shift register/ button edge detect
 ------------------------------------------------
-CASE (POSITION) IS 
+CASE (POSITION) IS --door state machine
 ------------------------------------------------
 WHEN LOCKED =>
 LED_SIGNAL <= (OTHERS => '0'); --LIGHTS OFF
                          
-SEGS(0) <= S;  
+SEGS(0) <= S;   -- prints SHUT
 SEGS(1) <= h;  
 SEGS(2) <= u;  
 SEGS(3) <= t; 
  
-IF(RISING_EDGE(TRY_DEB)) THEN
-IF (SWITCH_DEB = PASSWORD) THEN
+IF(TRY_EDGE = "01") THEN  -- if button rising edge
+IF (SWITCH_DEB = PASSWORD) THEN -- if password match
 COUNT := 0;
-POSITION <= UNLOCKED;
+POSITION <= UNLOCKED; --goto unlocked
 ELSE
 COUNT := 0;
-POSITION <= WARNING;
+POSITION <= WARNING; --goto warning
 END IF;
 END IF;
 
 ------------------------------------------------
 WHEN UNLOCKED =>
 
-LED_SIGNAL <= (OTHERS => '0');
-SEGS(0) <= O;  
+LED_SIGNAL <= (OTHERS => '0'); -- lights off
+SEGS(0) <= O;   --print open
 SEGS(1) <= p; 
 SEGS(2) <= e; 
 SEGS(3) <= n; 
 
-IF (RISING_EDGE(CLK)) THEN
-IF (COUNT >= CLK_FREQ*10) THEN
-COUNT := 0;
-POSITION <= LOCKED;
+--IF (RISING_EDGE(CLK)) THEN
+IF (COUNT >= CLK_FREQ*10) THEN -- if the counter is at 10s
+COUNT := 0; --reset count
+POSITION <= LOCKED; --goto locked
 ELSE 
-COUNT := COUNT + 1;
+COUNT := COUNT + 1; --else increment count
 END IF;
-END IF;
+--END IF;
 ------------------------------------------------
 WHEN WARNING =>
 
@@ -104,23 +111,24 @@ SEGS(1) <= h;
 SEGS(2) <= u;  
 SEGS(3) <= t;
 
-IF (RISING_EDGE(CLK)) THEN
-IF (BLINK>= CLK_FREQ) THEN
-LED_SIGNAL <= NOT(LED_SIGNAL);
-BLINK := 0;
+--IF (RISING_EDGE(CLK)) THEN
+IF (BLINK>= CLK_FREQ) THEN -- blink counter is at 1s
+LED_SIGNAL <= NOT(LED_SIGNAL); --flips leds on/off
+BLINK := 0; -- reset count
 ELSE
-BLINK := BLINK + 1;
+BLINK := BLINK + 1; -- else increment counter
 END IF;
 
 
-IF (COUNT >= CLK_FREQ*5) THEN
-COUNT := 0;
-POSITION <= LOCKED;
+IF (COUNT >= CLK_FREQ*5) THEN  -- if state counter is at 5s
+COUNT := 0; -- reset count;
+POSITION <= LOCKED; --goto locked
 ELSE 
-COUNT := COUNT + 1;
+COUNT := COUNT + 1; -- else increment count
 END IF;
-END IF;
+--END IF;
 
 END CASE;
+END IF;
 END PROCESS;
 end Behavioral;

@@ -24,9 +24,9 @@ PORT(
  PROCESS(CLK) -- CLOCK FLIP FLOPS.
  BEGIN
  IF RISING_EDGE(CLK) THEN
- FF2 <= FF1;
- FF1 <= DIN;
- END IF;
+ FF2 <= FF1; -- double -flopped
+ FF1 <= DIN; -- shift register
+ END IF;     -- prevents metasability
  END PROCESS;
  
  PROCESS(CLK,RESET)
