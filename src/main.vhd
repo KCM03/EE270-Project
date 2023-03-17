@@ -97,7 +97,7 @@ SEGS(2) <= e;
 SEGS(3) <= n; 
 
 --IF (RISING_EDGE(CLK)) THEN
-IF (COUNT >= CLK_FREQ/100) THEN -- if the counter is at 10s
+IF (COUNT >= CLK_FREQ*10/1000) THEN -- if the counter is at 10s
 COUNT := 0; --reset count
 POSITION <= LOCKED; --goto locked
 ELSE 
@@ -121,7 +121,7 @@ BLINK := BLINK + 1; -- else increment counter
 END IF;
 
 
-IF (COUNT >= CLK_FREQ/500) THEN  -- if state counter is at 5s (COUNT >= CLK_FREQ*5)
+IF (COUNT >= CLK_FREQ*5/1000) THEN  -- if state counter is at 5s (COUNT >= CLK_FREQ*5)
 COUNT := 0; -- reset count;
 POSITION <= LOCKED; --goto locked
 ELSE 
