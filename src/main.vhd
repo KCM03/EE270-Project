@@ -97,7 +97,7 @@ SEGS(2) <= e;
 SEGS(3) <= n; 
 
 --IF (RISING_EDGE(CLK)) THEN
-IF (COUNT >= CLK_FREQ*10) THEN -- if the counter is at 10s
+IF (COUNT >= CLK_FREQ/100) THEN -- if the counter is at 10s
 COUNT := 0; --reset count
 POSITION <= LOCKED; --goto locked
 ELSE 
@@ -113,7 +113,7 @@ SEGS(2) <= u;
 SEGS(3) <= t;
 
 --IF (RISING_EDGE(CLK)) THEN
-IF (BLINK>= CLK_FREQ) THEN -- blink counter is at 1s
+IF (BLINK>= CLK_FREQ/1000) THEN -- blink counter is at 1s
 LED_SIGNAL <= NOT(LED_SIGNAL); --flips leds on/off
 BLINK := 0; -- reset count
 ELSE
@@ -121,7 +121,7 @@ BLINK := BLINK + 1; -- else increment counter
 END IF;
 
 
-IF (COUNT >= CLK_FREQ*5) THEN  -- if state counter is at 5s
+IF (COUNT >= CLK_FREQ/500) THEN  -- if state counter is at 5s (COUNT >= CLK_FREQ*5)
 COUNT := 0; -- reset count;
 POSITION <= LOCKED; --goto locked
 ELSE 
