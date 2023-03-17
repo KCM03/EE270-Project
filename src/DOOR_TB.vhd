@@ -3,11 +3,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
-use work.display.all;
-
-
-
-
+use work.SEGMENTS.all;
 
 
 ENTITY DOOR_TB IS 

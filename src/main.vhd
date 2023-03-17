@@ -1,37 +1,30 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-package display is
-  type SEVEN_SEGMENT is array (natural range <>) of std_logic_vector(6 downto 0);
-end package;
-package body display is --create new type to store vectors
-end package body;
---------------------------------------------- Output type declarations
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 library work;
-use work.display.all;
+use work.SEGMENTS.all;
 
 entity DOOR is
 GENERIC(
-S       : std_logic_vector(6 DOWNTO 0):= "1011010"; --constants
-H       : std_logic_vector(6 DOWNTO 0):= "0010111";
-U       : std_logic_vector(6 DOWNTO 0):= "0011100";
-T       : std_logic_vector(6 DOWNTO 0):= "0001111";
+S       : std_logic_vector(7 DOWNTO 0):= "10110100"; --constants
+H       : std_logic_vector(7 DOWNTO 0):= "00101110";
+U       : std_logic_vector(7 DOWNTO 0):= "00111000";
+T       : std_logic_vector(7 DOWNTO 0):= "00011110";
 
-O       : std_logic_vector(6 DOWNTO 0):= "1111110";
-P       : std_logic_vector(6 DOWNTO 0):= "1100111";
-E       : std_logic_vector(6 DOWNTO 0):= "1011111";
-N       : std_logic_vector(6 DOWNTO 0):= "0010101";
+O       : std_logic_vector(7 DOWNTO 0):= "11111100";
+P       : std_logic_vector(7 DOWNTO 0):= "11001110";
+E       : std_logic_vector(7 DOWNTO 0):= "10111110";
+N       : std_logic_vector(7 DOWNTO 0):= "00101010";
 
 PASSWORD : STD_LOGIC_VECTOR(5 DOWNTO 0):= "111111";
-CLK_FREQ : INTEGER := 50_000_000);
+CLK_FREQ : INTEGER := 100_000_000);
 PORT(
-SWITCH   :  IN std_logic_vector(5 downto 0);
-TRY,CLK  :  IN STD_LOGIC;
-LEDs     : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-SEGS     : OUT SEVEN_SEGMENT(0 TO 3);
+SWITCH   :  IN std_logic_vector(5 downto 0); --constraint done
+TRY,CLK  :  IN STD_LOGIC; 
+LEDs     : OUT STD_LOGIC_VECTOR(15 DOWNTO 0); 
+SEG     : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);--notdone
+AN       : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); --notdone
 UNLCK    : OUT STD_LOGIC); -- FOR _TB, REMOVE LATER.
 
 end DOOR;
@@ -43,7 +36,7 @@ SIGNAL TRY_DEB    : STD_LOGIC; --debounced button
 SIGNAL POSITION   : STATE := LOCKED; -- tracks state
 SIGNAL LED_SIGNAL : STD_LOGIC_VECTOR(15 DOWNTO 0); -- buffered led output
 SIGNAL TRY_EDGE   : STD_LOGIC_VECTOR(1 DOWNTO 0); -- button edge detection
-
+SIGNAL SEGS       : SEVEN_SEGMENT(3 DOWNTO 0);
 begin
 
 DEB_GEN: FOR I IN 5 DOWNTO 0 GENERATE
@@ -55,7 +48,14 @@ END GENERATE;
 TRY_DEBOUNCE : ENTITY WORK.DEBOUNCER --attach debouncer to button
 PORT MAP(DIN => TRY, DOUT => TRY_DEB, CLK => CLK);
 
+
+DISP : ENTITY WORK.DISPLAY --attach debouncer to button
+PORT MAP(SEGS => SEGS, SEG=> SEG, AN=>AN, CLK => CLK);
+
+
+
 LEDs <= LED_SIGNAL; --pass led buffer to leds
+
 
 
 PROCESS(CLK,TRY_DEB)
