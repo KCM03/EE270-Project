@@ -6,16 +6,16 @@ library work;
 use work.SEGMENTS.all;
 
 entity DOOR is
-GENERIC(
-S       : std_logic_vector(7 DOWNTO 0):= "10110100"; --constants
-H       : std_logic_vector(7 DOWNTO 0):= "00101110";
-U       : std_logic_vector(7 DOWNTO 0):= "00111000";
-T       : std_logic_vector(7 DOWNTO 0):= "00011110";
+GENERIC(                           --abcdefg.
+S : std_logic_vector(7 DOWNTO 0):=  "01001011"; --constants
+H : std_logic_vector(7 DOWNTO 0):=  "11010001";
+U : std_logic_vector(7 DOWNTO 0):=  "11000111"; -- inverted;LED 
+T : std_logic_vector(7 DOWNTO 0):=  "11100001"; -- Goes high at '0'.
 
-O       : std_logic_vector(7 DOWNTO 0):= "11111100";
-P       : std_logic_vector(7 DOWNTO 0):= "11001110";
-E       : std_logic_vector(7 DOWNTO 0):= "10111110";
-N       : std_logic_vector(7 DOWNTO 0):= "00101010";
+O : std_logic_vector(7 DOWNTO 0):=  "00000011"; --last bit is 
+P : std_logic_vector(7 DOWNTO 0):=  "00110001"; --decimal pt.
+E : std_logic_vector(7 DOWNTO 0):=  "01100001"; 
+N : std_logic_vector(7 DOWNTO 0):=  "11010101";
 
 PASSWORD : STD_LOGIC_VECTOR(5 DOWNTO 0):= "111111";
 CLK_FREQ : INTEGER := 100_000_000);
