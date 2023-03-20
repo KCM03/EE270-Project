@@ -6,7 +6,7 @@ use ieee.std_logic_unsigned.all;
 
 ENTITY DEBOUNCER IS 
 GENERIC(
-CLK_FREQ    : INTEGER := 50_000_000;
+CLK_FREQ    : INTEGER := 100_000_000;
 STABLE_TIME : INTEGER := 100);
 PORT(
  DIN,CLK :  IN STD_LOGIC;
