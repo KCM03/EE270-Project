@@ -11,7 +11,7 @@ set_property PACKAGE_PIN W5 [get_ports CLK]
 ## Switches
 set_property PACKAGE_PIN V17 [get_ports {SWITCH[0]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {SWITCH[0]}]
-set_property PACKAGE_PIN V16 [get_ports {SWITCH[1]]}]					
+set_property PACKAGE_PIN V16 [get_ports {SWITCH[1]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {SWITCH[1]}]
 set_property PACKAGE_PIN W16 [get_ports {SWITCH[2]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {SWITCH[2]}]
@@ -100,11 +100,11 @@ set_property PACKAGE_PIN V7 [get_ports {SEG[7]}]
 
 set_property PACKAGE_PIN U2 [get_ports {AN[3]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {AN[3]}]
-set_property PACKAGE_PIN U4 [get_ports {an[2]}]					
+set_property PACKAGE_PIN U4 [get_ports {AN[2]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {AN[2]}]
 set_property PACKAGE_PIN V4 [get_ports {AN[1]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {AN[1]}]
-set_property PACKAGE_PIN W4 [get_ports {an[0]}]					
+set_property PACKAGE_PIN W4 [get_ports {AN[0]}]					
 	set_property IOSTANDARD LVCMOS33 [get_ports {AN[0]}]
 
 
@@ -124,8 +124,8 @@ set_property PACKAGE_PIN U18 [get_ports TRY]
 
 ##Pmod Header JA
 ##Sch name = JA1
-set_property PACKAGE_PIN J1 [get_ports {JA[0]}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {JA[0]}]
+set_property PACKAGE_PIN J1 [get_ports {UNLCK[0]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {UNLCK[0]}]
 ##Sch name = JA2
 #set_property PACKAGE_PIN L2 [get_ports {JA[1]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[1]}]

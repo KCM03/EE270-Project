@@ -56,17 +56,17 @@ SEG <= SEGS(3);
 AN <= (3 => '0', others => '1');
 
 ELSIF (COUNT = 2) THEN
-COUNT := 0;
+COUNT := COUNT +1;
 SEG <= SEGS(2);
 AN <= (2 => '0', others => '1');
 
 ELSIF (COUNT = 1) THEN
-COUNT := 0;
+COUNT := COUNT + 1;
 SEG <= SEGS(1);
 AN <= (1 => '0', others => '1');
 
 ELSIF (COUNT = 0) THEN
-COUNT := 0;
+COUNT := COUNT + 1;
 SEG <= SEGS(0);
 AN <= (0 => '0', others => '1');
 
