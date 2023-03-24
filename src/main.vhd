@@ -135,7 +135,7 @@ SEGS(2) <= u;
 SEGS(3) <= t;
 
 --IF (RISING_EDGE(CLK)) THEN
-IF (BLINK>= CLK_FREQ) THEN -- blink counter is at 1s
+IF (BLINK>= CLK_FREQ/2) THEN -- blink counter is at 1s
 LED_SIGNAL <= NOT(LED_SIGNAL); --flips leds on/off
 BLINK := 0; -- reset count
 ELSE
