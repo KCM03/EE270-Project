@@ -7,7 +7,7 @@ use work.SEGMENTS.all;
 
 entity DOOR is
 GENERIC(                           --abcdefg.
-S : std_logic_vector(7 DOWNTO 0):=  "01001011"; --constants
+S : std_logic_vector(7 DOWNTO 0):=  "01001001"; --constants
 H : std_logic_vector(7 DOWNTO 0):=  "11010001";
 U : std_logic_vector(7 DOWNTO 0):=  "11000111"; -- inverted;LED 
 T : std_logic_vector(7 DOWNTO 0):=  "11100001"; -- Goes high at '0'.
@@ -20,12 +20,12 @@ N : std_logic_vector(7 DOWNTO 0):=  "11010101";
 PASSWORD : STD_LOGIC_VECTOR(5 DOWNTO 0):= "111111";
 CLK_FREQ : INTEGER := 100_000_000);
 PORT(
-SWITCH   :  IN std_logic_vector(5 downto 0); --constraint done
-TRY,CLK  :  IN STD_LOGIC; 
-LEDs     : OUT STD_LOGIC_VECTOR(15 DOWNTO 0); 
-SEG     : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);--notdone
-AN       : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); --notdone
-UNLCK    : OUT STD_LOGIC); -- FOR _TB, REMOVE LATER.
+SWITCH       :  IN std_logic_vector(5 downto 0); --constraint done
+TRY,CLK,RST  :  IN STD_LOGIC; 
+LEDs         : OUT STD_LOGIC_VECTOR(15 DOWNTO 0); 
+SEG          : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);--notdone
+AN           : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); --notdone
+UNLCK        : OUT STD_LOGIC); -- FOR _TB, REMOVE LATER.
 
 end DOOR;
 
@@ -33,9 +33,10 @@ architecture Behavioral of DOOR is
 TYPE STATE IS (LOCKED, UNLOCKED,WARNING);
 SIGNAL SWITCH_DEB : STD_LOGIC_VECTOR(5 DOWNTO 0); --debounced switch
 SIGNAL TRY_DEB    : STD_LOGIC; --debounced button
+SIGNAL RST_DEB    : STD_LOGIC; --debounced button
 SIGNAL POSITION   : STATE := LOCKED; -- tracks state
 SIGNAL LED_SIGNAL : STD_LOGIC_VECTOR(15 DOWNTO 0); -- buffered led output
-SIGNAL TRY_EDGE   : STD_LOGIC_VECTOR(1 DOWNTO 0); -- button edge detection
+SIGNAL TRY_EDGE,RST_EDGE    : STD_LOGIC_VECTOR(1 DOWNTO 0); --button edge detection 
 SIGNAL SEGS       : SEVEN_SEGMENT(3 DOWNTO 0);
 begin
 
@@ -47,6 +48,9 @@ END GENERATE;
 
 TRY_DEBOUNCE : ENTITY WORK.DEBOUNCER --attach debouncer to button
 PORT MAP(DIN => TRY, DOUT => TRY_DEB, CLK => CLK);
+
+RST_DEBOUNCE : ENTITY WORK.DEBOUNCER --attach debouncer to button
+PORT MAP(DIN => RST, DOUT => RST_DEB, CLK => CLK);
 
 
 DISP : ENTITY WORK.DISPLAY --attach debouncer to button
@@ -65,6 +69,7 @@ BEGIN
 
 IF RISING_EDGE(CLK) THEN --global clock
 TRY_EDGE <= TRY_EDGE(0) & TRY_DEB; -- shift register/ button edge detect
+RST_EDGE <= RST_EDGE(0) & RST_DEB;
 ------------------------------------------------
 CASE (POSITION) IS --door state machine
 ------------------------------------------------
@@ -95,8 +100,8 @@ SEGS(2) <= e;
 SEGS(3) <= n; 
 
 --IF (RISING_EDGE(CLK)) THEN
-IF (COUNT >= CLK_FREQ*10) THEN -- if the counter is at 10s
-COUNT := 0; --reset count
+IF (COUNT >= CLK_FREQ*10 OR RST_EDGE = "01") THEN -- if the counter is at 10s --modified to inlcude reset 
+COUNT := 0; --reset count   ----------------
 POSITION <= LOCKED; --goto locked
 ELSE 
 COUNT := COUNT + 1; --else increment count
@@ -111,17 +116,17 @@ ELSIF COUNT <= CLK_FREQ*3 THEN
 LED_SIGNAL <= "1111111100000000";
 ELSIF COUNT <= CLK_FREQ*4 THEN
 LED_SIGNAL <= "1111111000000000";
-ELSIF COUNT <= CLK_FREQ*3 THEN
-LED_SIGNAL <= "1111110000000000";
 ELSIF COUNT <= CLK_FREQ*5 THEN
-LED_SIGNAL <= "1111100000000000";
+LED_SIGNAL <= "1111110000000000";
 ELSIF COUNT <= CLK_FREQ*6 THEN
-LED_SIGNAL <= "1111000000000000";
+LED_SIGNAL <= "1111100000000000";
 ELSIF COUNT <= CLK_FREQ*7 THEN
-LED_SIGNAL <= "1110000000000000";
+LED_SIGNAL <= "1111000000000000";
 ELSIF COUNT <= CLK_FREQ*8 THEN
-LED_SIGNAL <= "1100000000000000";
+LED_SIGNAL <= "1110000000000000";
 ELSIF COUNT <= CLK_FREQ*9 THEN
+LED_SIGNAL <= "1100000000000000";
+ELSIF COUNT <= CLK_FREQ*10 THEN
 LED_SIGNAL <= "1000000000000000";
 ELSE
 LED_SIGNAL <= (OTHERS => '0');
@@ -135,7 +140,7 @@ SEGS(2) <= u;
 SEGS(3) <= t;
 
 --IF (RISING_EDGE(CLK)) THEN
-IF (BLINK>= CLK_FREQ/2) THEN -- blink counter is at 1s
+IF (BLINK>= CLK_FREQ/2 OR RST_EDGE = "01") THEN -- blink counter is at 1s
 LED_SIGNAL <= NOT(LED_SIGNAL); --flips leds on/off
 BLINK := 0; -- reset count
 ELSE
@@ -143,7 +148,7 @@ BLINK := BLINK + 1; -- else increment counter
 END IF;
 
 
-IF (COUNT >= CLK_FREQ*5) THEN  -- if state counter is at 5s (COUNT >= CLK_FREQ*5)
+IF (COUNT >= CLK_FREQ*5 OR RST_EDGE = "01") THEN  -- if state counter is at 5s (COUNT >= CLK_FREQ*5)
 COUNT := 0; -- reset count;
 POSITION <= LOCKED; --goto locked
 ELSE 
